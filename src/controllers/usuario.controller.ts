@@ -1,40 +1,35 @@
-import { service } from '@loopback/core';
+import {service} from '@loopback/core';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
-import { 
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+import {
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
-import {Usuario, Asesor, Cliente} from '../models';
-import {UsuarioRepository} from '../repositories';
-import {ClienteRepository} from '../repositories';
-import {AsesorRepository} from '../repositories';
+import {Asesor, Cliente, Usuario} from '../models';
+import {AsesorRepository, ClienteRepository, UsuarioRepository} from '../repositories';
 import {AutenticacionService} from '../services';
+const fetch = require('node-fetch');
+
+
 
 export class UsuarioController {
   constructor(
     @repository(UsuarioRepository)
-    public usuarioRepository : UsuarioRepository,
+    public usuarioRepository: UsuarioRepository,
     @repository(ClienteRepository)
-    public clienteRepository : ClienteRepository,
+    public clienteRepository: ClienteRepository,
     @repository(AsesorRepository)
-    public asesorRepository : AsesorRepository,
+    public asesorRepository: AsesorRepository,
     @service(AutenticacionService)
-    public servicioAutenticacion : AutenticacionService
-  ) {}
+    public servicioAutenticacion: AutenticacionService
+  ) { }
 
   @post('/Registro')
   @response(200, {
@@ -58,19 +53,30 @@ export class UsuarioController {
     let passwordE = this.servicioAutenticacion.EncriptarPassword(password);
     usuario.contrasena = passwordE;
     let user = await this.usuarioRepository.create(usuario);
-    if(user.rol.toLowerCase().includes('cliente')){//Si el rol contiene 'cliente' ↓
+    if (user.rol.toLowerCase().includes('cliente')) {//Si el rol contiene 'cliente' ↓
       let client = {
         celular: user.celular,
         usuarioId: user.id,
       };
-      let cliente : Cliente = await this.clienteRepository.create(client);
-    }else if(user.rol.toLowerCase().includes('asesor')){
+      let cliente: Cliente = await this.clienteRepository.create(client);
+    } else if (user.rol.toLowerCase().includes('asesor')) {
       let asesor = {
         estado: user.estado,
         usuarioId: user.id,
       };
       let adviser: Asesor = await this.asesorRepository.create(asesor);
     }
+
+    // Notificar al usuario
+    let destino = usuario.correo;
+    let asunto = "Registro en la plataforma";
+    let asuntoReformateado = asunto.toString();
+    let contenido=`Hola ${usuario.nombres}, su nombre de usuario es: ${usuario.correo} y su contraseña es: ${password}`;
+    let contenidoFormateado = contenido.toString();
+    fetch(`http://127.0.0.1:5000/e-mail?correo_destino=${destino}&asunto=${asuntoReformateado}&contenido=${contenidoFormateado}`)
+    .then((data: any)=>{
+      console.log(data)
+    });
 
     return user;
   }
