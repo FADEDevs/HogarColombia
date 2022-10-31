@@ -5,3 +5,4 @@ export * from './co-deudor.model';
 export * from './solicitud.model';
 export * from './inmueble.model';
 export * from './inmobiliaria.model';
+export * from './credenciales.model';

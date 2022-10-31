@@ -12,7 +12,7 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
-import {Asesor, Cliente, Usuario} from '../models';
+import {Asesor, Cliente, Credenciales, Usuario} from '../models';
 import {AsesorRepository, ClienteRepository, UsuarioRepository} from '../repositories';
 import {AutenticacionService} from '../services';
 const fetch = require('node-fetch');
@@ -33,7 +33,7 @@ export class UsuarioController {
 
   @post('/Registro')
   @response(200, {
-    description: 'Usuario model instance',
+    description: 'Registro de usuarios',
     content: {'application/json': {schema: getModelSchemaRef(Usuario)}},
   })
   async create(
@@ -180,5 +180,26 @@ export class UsuarioController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.usuarioRepository.deleteById(id);
+  }
+  // METODOS CREADOS
+  // Metodo para la identificación de usuarios
+  @post('/Login',{
+    responses:{
+      '200':{
+        description:"Identificación de los usuarios"
+      }
+    }
+  })
+  async identificar(
+    @requestBody() credenciales : Credenciales //Objeto de las credenciales
+  ):Promise<Usuario | null>{
+    let passwordE = this.servicioAutenticacion.EncriptarPassword(credenciales.password);
+    let user = await this.usuarioRepository.findOne({
+      where: {
+        correo : credenciales.email,
+        contrasena : passwordE //Aquí se compara la contraseña encriptada de la BD, con la contraseña que llega del login (Sin encriptar)
+      }
+    });
+    return user;
   }
 }
