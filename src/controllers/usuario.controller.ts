@@ -9,9 +9,10 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
+  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
+import {Keys} from '../configuracion/Keys';
 import {Asesor, Cliente, Credenciales, Usuario} from '../models';
 import {AsesorRepository, ClienteRepository, UsuarioRepository} from '../repositories';
 import {AutenticacionService} from '../services';
@@ -73,7 +74,7 @@ export class UsuarioController {
     let asuntoReformateado = asunto.toString();
     let contenido=`Hola ${usuario.nombres}, su nombre de usuario es: ${usuario.correo} y su contraseña es: ${password}`;
     let contenidoFormateado = contenido.toString();
-    fetch(`http://127.0.0.1:5000/e-mail?correo_destino=${destino}&asunto=${asuntoReformateado}&contenido=${contenidoFormateado}`)
+    fetch(`${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asuntoReformateado}&contenido=${contenidoFormateado}`)
     .then((data: any)=>{
       console.log(data)
     });
@@ -201,5 +202,28 @@ export class UsuarioController {
       }
     });
     return user;
+  }
+  //Metodo para identificación de usuarios y token de seguridad.
+  @post('/LoginToken')
+  @response(200,{
+    description: "Identificar a las personas y generar un token."
+  })
+  async identificarT(
+    @requestBody() credenciales : Credenciales
+  ){
+    credenciales.password = this.servicioAutenticacion.EncriptarPassword(credenciales.password); //Encriptando la contraseña que se recibe
+    let user = await this.servicioAutenticacion.IdentificarUsuario(credenciales);
+    if (user) {
+      let token = this.servicioAutenticacion.GenerarToken(user);
+      return {
+        datos: {
+          nombre: user.nombres,
+          id: user.id
+        },
+        tk : token
+      }
+    } else {
+      throw new HttpErrors[401]("Datos invalidos!");
+    }
   }
 }
