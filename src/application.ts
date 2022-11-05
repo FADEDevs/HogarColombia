@@ -10,6 +10,8 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {EstrategiaAdministrador} from './estrategias/estrategiaAdministrador';
+import {EstrategiaAsesor} from './estrategias/estrategiaAsesor';
+import {EstrategiaCliente} from './estrategias/estretegiaCliente';
 import {MySequence} from './sequence';
 export {ApplicationConfig};
 
@@ -43,6 +45,8 @@ export class App extends BootMixin(
     };
 
     registerAuthenticationStrategy(this, EstrategiaAdministrador);
+    registerAuthenticationStrategy(this, EstrategiaAsesor);//El this indica que la estrategia se aplica a toda la app
+    registerAuthenticationStrategy(this, EstrategiaCliente);
     this.component(AuthenticationComponent);
 
   }

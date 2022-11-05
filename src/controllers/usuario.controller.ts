@@ -53,14 +53,16 @@ export class UsuarioController {
     let password = this.servicioAutenticacion.GenerarPassword();
     let passwordE = this.servicioAutenticacion.EncriptarPassword(password);
     usuario.contrasena = passwordE;
+    usuario.rol.toLowerCase();//Definimos que antes de crear el usuario se guarde el rol en minuscula
+    //Así quitamos el toLowerCase en las validaciones del rol
     let user = await this.usuarioRepository.create(usuario);
-    if (user.rol.toLowerCase().includes('cliente')) {//Si el rol contiene 'cliente' ↓
+    if (user.rol.includes('cliente')) {//Si el rol contiene 'cliente' ↓
       let client = {
         celular: user.celular,
         usuarioId: user.id,
       };
       let cliente: Cliente = await this.clienteRepository.create(client);
-    } else if (user.rol.toLowerCase().includes('asesor')) {
+    } else if (user.rol.includes('asesor')) {
       let asesor = {
         estado: user.estado,
         usuarioId: user.id,

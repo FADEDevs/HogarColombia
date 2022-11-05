@@ -14,14 +14,14 @@ import {
 } from '@loopback/rest';
 import {Inmueble} from '../models';
 import {InmuebleRepository} from '../repositories';
-
+@authenticate("admin")//Se agrega permisos de admin a todo el controlador y sus métodos
 export class InmuebleController {
   constructor(
     @repository(InmuebleRepository)
     public inmuebleRepository: InmuebleRepository,
   ) { }
 
-  @authenticate("admin")
+  @authenticate("admin","asesor")//Le agregamos permiso para crear inmuebles al asesor
   @post('/inmuebles')
   @response(200, {
     description: 'Inmueble model instance',

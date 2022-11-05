@@ -5,23 +5,20 @@ import {UserProfile} from '@loopback/security';
 import parseBearerToken from 'parse-bearer-token';
 import {AutenticacionService} from '../services';
 var respuesta: Boolean = false;
+export class EstrategiaCliente implements AuthenticationStrategy{
+  name: string = "cliente";
 
-export class EstrategiaAdministrador implements AuthenticationStrategy {
-  name: string = 'admin';
-
-  constructor(
+  constructor(//Constructor para inicializar el servicio de autenticacion
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService
-  ) {
-
-  }
+  ){}
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
-    let token = parseBearerToken(request);
+    let token =  parseBearerToken(request);//Extraemos el token cuando la persona hace la solicitud de la página
     if (token) {
       let datos = this.servicioAutenticacion.ValidarToken(token);
-      if (datos) {
-        if (datos.data.rol == "administrador") {
+      if(datos){
+        if (datos.data.rol == 'cliente') {
           respuesta = true;
           if (respuesta) {
             let perfil: UserProfile = Object.assign({
@@ -29,17 +26,16 @@ export class EstrategiaAdministrador implements AuthenticationStrategy {
             });
             return perfil;
           } else {
-            throw new HttpErrors[401]("usted no es un Administrador");
+            throw new HttpErrors[401]("Usted no es un Cliente.")
           }
         } else {
-          throw new HttpErrors[401]("usted es un usuario que no tiene acceso a este recurso")
+          throw new HttpErrors[401]("Usted no tiene permisos de acceso a este recurso.")
         }
-      } else {
-        throw new HttpErrors[401]("El token incluido no es valido")
+      }else{
+        throw new HttpErrors[401]("El token no es válido.")
       }
     } else {
-      throw new HttpErrors[401]("No se ha incluido un token en la solicitud")
+      throw new HttpErrors[401]("No hay un token para esta solicitud.")
     }
   }
-
 }
