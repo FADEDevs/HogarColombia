@@ -11,10 +11,10 @@ const jwt = require("jsonwebtoken");
 export class AutenticacionService {
   constructor(
     @repository(UsuarioRepository)
-    public repositoryUser:UsuarioRepository
-  ) {}
+    public repositoryUser: UsuarioRepository
+  ) { }
 
-  GenerarPassword(){
+  GenerarPassword() {
     let password = generador.generate({
       length: 8,//Indicamos la longitud de la contraseña a generar
       numbers: true//Indicamos que la contraseña se genere con números
@@ -22,22 +22,22 @@ export class AutenticacionService {
     return password;
   }
 
-  EncriptarPassword(password:string){
+  EncriptarPassword(password: string) {
     let passwordE = cryptoJS.MD5(password);//Encriptamos la contraseña ingresada cómo argumento
     return passwordE;
   }
   //Metodo para identificarUsuario
-  IdentificarUsuario( credenciales: Credenciales){
+  IdentificarUsuario(credenciales: Credenciales) {
     try {
       let user = this.repositoryUser.findOne({
-        where:{
+        where: {
           correo: credenciales.email,
           contrasena: credenciales.password
         }
       });
-      if(user){
+      if (user) {
         return user; //Si User es verdadero (encontro el usuario) entonces retornara los datos
-      }else{
+      } else {
         return false;
       }
     } catch {
@@ -45,12 +45,13 @@ export class AutenticacionService {
     }
   }
   //Generar el token
-  GenerarToken( usuario: Usuario){
+  GenerarToken(usuario: Usuario) {
     let token = jwt.sign({
-      data:{
+      data: {
         id: usuario.id,
         correo: usuario.correo,
-        nombre: usuario.nombres + " " + usuario.apellidos
+        nombre: usuario.nombres + " " + usuario.apellidos,
+        rol: usuario.rol
       }
     },
       //Llave para encriptar el dato
@@ -59,11 +60,11 @@ export class AutenticacionService {
     return token;
   }
   //Validar el token
-  ValidarToken ( token : string){
+  ValidarToken(token: string) {
     try {
       let datos = jwt.verify(token, Keys.llaveJwt);
       return datos;
-    } catch{
+    } catch {
       return false;
     }
   }

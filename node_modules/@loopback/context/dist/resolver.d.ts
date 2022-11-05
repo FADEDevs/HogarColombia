@@ -13,7 +13,7 @@ import { BoundValue, Constructor, MapObject, ValueOrPromise } from './value-prom
  * @param session - Optional session for binding and dependency resolution
  * @param nonInjectedArgs - Optional array of args for non-injected parameters
  */
-export declare function instantiateClass<T>(ctor: Constructor<T>, ctx: Context, session?: ResolutionSession, nonInjectedArgs?: any[]): ValueOrPromise<T>;
+export declare function instantiateClass<T extends object>(ctor: Constructor<T>, ctx: Context, session?: ResolutionSession, nonInjectedArgs?: any[]): ValueOrPromise<T>;
 /**
  * Given a function with arguments decorated with `@inject`,
  * return the list of arguments resolved using the values
