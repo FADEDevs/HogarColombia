@@ -5,7 +5,7 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -17,14 +17,14 @@ import {
   post,
   put,
   requestBody,
-  response,
+  response
 } from '@loopback/rest';
 import {Keys} from '../configuracion/Keys';
 import {Asesor, CambioPass, Cliente, Credenciales, Usuario} from '../models';
 import {
   AsesorRepository,
   ClienteRepository,
-  UsuarioRepository,
+  UsuarioRepository
 } from '../repositories';
 import {AutenticacionService} from '../services';
 const fetch = require('node-fetch');
