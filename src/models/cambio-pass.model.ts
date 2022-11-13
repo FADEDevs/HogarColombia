@@ -4,8 +4,9 @@ import {Model, model, property} from '@loopback/repository';
 export class CambioPass extends Model {
   @property({
     type: 'string',
+    required: true,
   })
-  cActual?: string;
+  cActual: string;
 
   @property({
     type: 'string',
@@ -18,7 +19,6 @@ export class CambioPass extends Model {
     required: true,
   })
   cValidada: string;
-
 
   constructor(data?: Partial<CambioPass>) {
     super(data);

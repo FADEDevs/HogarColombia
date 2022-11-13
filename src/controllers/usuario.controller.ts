@@ -248,10 +248,10 @@ export class UsuarioController {
   @response(200, {
     description: 'Recuperacion de la contraseña de usuario',
   })
-  async recuperar(@requestBody() email: string): Promise<boolean> {
+  async recuperar(@requestBody() correo: string): Promise<boolean> {
     let user = await this.usuarioRepository.findOne({
       where: {
-        correo: email,
+        correo: correo,
       },
     });
     if (user) {
@@ -268,7 +268,8 @@ export class UsuarioController {
       let contenido = `Hola ${user.nombres}, se ha realizado la recuperación de su contraseña para el ingreso a nuestra App. Su nueva contraseña es: ${contraseña}`;
 
       fetch(
-        `http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&mensaje=${contenido}`,
+        //`http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&mensaje=${contenido}`,
+        `${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
       ).then((data: any) => {
         console.log(data);
       });
@@ -289,9 +290,10 @@ export class UsuarioController {
     //A CambioPass hay que contruirle un modelo para sus datos
     let user = await this.usuarioRepository.findOne({
       where: {
-        contrasena: datos.cActual,
+        contrasena: this.servicioAutenticacion.EncriptarPassword(datos.cActual),
       },
     });
+    console.log(user);
     if (user) {
       if (datos.cNueva == datos.cValidada) {
         user.contrasena = this.servicioAutenticacion.EncriptarPassword(
@@ -305,7 +307,8 @@ export class UsuarioController {
         let contenido = `Hola, ${user.nombres}, usted a realizado un cambio en su contraseña. Su nueva contraseña es: ${datos.cNueva}, siga el siguiente link para modificarla: http://google.com`;
 
         fetch(
-          `http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&mensaje=${contenido}`,
+          `${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
+          // `http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
         ).then((data: any) => {
           console.log(data);
         });
