@@ -195,40 +195,14 @@ export class UsuarioController {
     await this.usuarioRepository.deleteById(id);
   }
   // METODOS CREADOS
-  // Metodo para la identificación de usuarios
-  @post('/Login', {
-    responses: {
-      '200': {
-        description: 'Identificación de los usuarios',
-      },
-    },
-  })
-  async identificar(
-    @requestBody() credenciales: Credenciales, //Objeto de las credenciales
-  ): Promise<Usuario | null> {
-    let passwordE = this.servicioAutenticacion.EncriptarPassword(
-      credenciales.password,
-    );
-    let user = await this.usuarioRepository.findOne({
-      where: {
-        correo: credenciales.email,
-        contrasena: passwordE, //Aquí se compara la contraseña encriptada de la BD, con la contraseña que llega del login (Sin encriptar)
-      },
-    });
-    return user;
-  }
   //Metodo para identificación de usuarios y token de seguridad.
-  @post('/LoginToken')
+  @post('/Login')
   @response(200, {
     description: 'Identificar a las personas y generar un token.',
   })
   async identificarT(@requestBody() credenciales: Credenciales) {
-    credenciales.password = this.servicioAutenticacion.EncriptarPassword(
-      credenciales.password,
-    ); //Encriptando la contraseña que se recibe
-    let user = await this.servicioAutenticacion.IdentificarUsuario(
-      credenciales,
-    );
+    credenciales.password = this.servicioAutenticacion.EncriptarPassword(credenciales.password); //Encriptando la contraseña que se recibe
+    let user = await this.servicioAutenticacion.IdentificarUsuario(credenciales);
     if (user) {
       let token = this.servicioAutenticacion.GenerarToken(user);
       return {
@@ -242,7 +216,6 @@ export class UsuarioController {
       throw new HttpErrors[401]('Datos invalidos!');
     }
   }
-
   //*Recuperacion de la contraseña
   @post('/RecuperarPass')
   @response(200, {
@@ -267,10 +240,8 @@ export class UsuarioController {
       let asunto = 'Recuperacion de clave desde la APP-HogarColombia';
       let contenido = `Hola ${user.nombres}, se ha realizado la recuperación de su contraseña para el ingreso a nuestra App. Su nueva contraseña es: ${contraseña}`;
 
-      fetch(
-        //`http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&mensaje=${contenido}`,
-        `${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
-      ).then((data: any) => {
+      fetch(`${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`).
+        then((data: any) => {
         console.log(data);
       });
       console.log('Se ha enviado la nueva contraseña al usuario');
@@ -306,11 +277,9 @@ export class UsuarioController {
           'Modificacion de la contraseña por parte del usuar en la app HogarColombia';
         let contenido = `Hola, ${user.nombres}, usted a realizado un cambio en su contraseña. Su nueva contraseña es: ${datos.cNueva}, siga el siguiente link para modificarla: http://google.com`;
 
-        fetch(
-          `${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
-          // `http://localhost:5000/e-mail?email_destino=${destino}&asunto=${asunto}&contenido=${contenido}`,
-        ).then((data: any) => {
-          console.log(data);
+        fetch(`${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
+          .then((data: any) => {
+            console.log(data);
         });
         console.log('El cambio a sido exitoso');
         return true;
