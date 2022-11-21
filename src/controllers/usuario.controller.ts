@@ -39,7 +39,7 @@ export class UsuarioController {
     public asesorRepository: AsesorRepository,
     @service(AutenticacionService)
     public servicioAutenticacion: AutenticacionService,
-  ) {}
+  ) { }
 
   @post('/Registro')
   @response(200, {
@@ -217,11 +217,11 @@ export class UsuarioController {
     }
   }
   //*Recuperacion de la contraseña
-  @post('/RecuperarPass')
+  @post('/RecuperarPass/{correo}')
   @response(200, {
     description: 'Recuperacion de la contraseña de usuario',
   })
-  async recuperar(@requestBody() correo: string): Promise<boolean> {
+  async recuperar(@param.path.string('correo') correo: string): Promise<boolean> {
     let user = await this.usuarioRepository.findOne({
       where: {
         correo: correo,
@@ -242,8 +242,8 @@ export class UsuarioController {
 
       fetch(`${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`).
         then((data: any) => {
-        console.log(data);
-      });
+          console.log(data);
+        });
       console.log('Se ha enviado la nueva contraseña al usuario');
       return true;
     } else {
@@ -280,7 +280,7 @@ export class UsuarioController {
         fetch(`${Keys.urlnotificacion}/e-mail?correo_destino=${destino}&asunto=${asunto}&contenido=${contenido}`)
           .then((data: any) => {
             console.log(data);
-        });
+          });
         console.log('El cambio a sido exitoso');
         return true;
       } else {
