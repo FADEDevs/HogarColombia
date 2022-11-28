@@ -1,4 +1,3 @@
-import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -14,14 +13,14 @@ import {
 } from '@loopback/rest';
 import {Inmueble} from '../models';
 import {InmuebleRepository} from '../repositories';
-@authenticate("admin")//Se agrega permisos de admin a todo el controlador y sus métodos
+// @authenticate("admin")//Se agrega permisos de admin a todo el controlador y sus métodos
 export class InmuebleController {
   constructor(
     @repository(InmuebleRepository)
     public inmuebleRepository: InmuebleRepository,
   ) { }
 
-  @authenticate("admin","asesor")//Le agregamos permiso para crear inmuebles al asesor
+  // @authenticate("admin", "asesor")//Le agregamos permiso para crear inmuebles al asesor
   @post('/inmuebles')
   @response(200, {
     description: 'Inmueble model instance',
@@ -43,6 +42,7 @@ export class InmuebleController {
     return this.inmuebleRepository.create(inmueble);
   }
 
+  // @authenticate.skip()
   @get('/inmuebles/count')
   @response(200, {
     description: 'Inmueble model count',
